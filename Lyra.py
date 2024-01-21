@@ -1,12 +1,19 @@
-from lark import Lark, Transformer, v_args
+from lark import Lark, Transformer
 
 grammar = """
     start: (variable_decl ";")+
 
-    variable_decl: "var" type IDENTIFIER "=" value
+    variable_decl: VAR type IDENTIFIER EQUAL value
 
-    type: "ent" | "flot" | "bool" | "cad" | "car"
-    
+    VAR: "var"
+    type: ENT | FLOT | BOOL | CAD | CAR
+    ENT: "ent"
+    FLOT: "flot"
+    BOOL: "bool"
+    CAD: "cad"
+    CAR: "car"
+    EQUAL: "="
+
     value: NUMBER       -> number
          | FLOAT       -> float
          | BOOLEAN     -> boolean
@@ -26,27 +33,79 @@ grammar = """
 
 lexer_parser = Lark(grammar, parser='lalr')
 
-
-@v_args(inline=True)    # Aplies the transformer to the children of a node
 class MyTransformer(Transformer):
-    def variable_decl(self, var_type, identifier, value):
-        return (str(var_type), str(identifier), value)
+    def __init__(self):
+        self.tokens = []
 
-    number = int
-    float = float
-    boolean = lambda self, x: x == "verdadero"
-    string = lambda self, x: x[1:-1]  # Remove quotes
-    char = lambda self, x: x[1:-1]    # Remove single quotes
+    def add_token(self, token_type, token_value):
+        self.tokens.append({token_type: str(token_value)})
 
+    def VAR(self, token):
+        self.add_token("VAR", token)
+        return token
+
+    def ENT(self, token):
+        self.add_token("TYPE", token)
+        return token
+
+    def FLOT(self, token):
+        self.add_token("TYPE", token)
+        return token
+
+    def BOOL(self, token):
+        self.add_token("TYPE", token)
+        return token
+
+    def CAD(self, token):
+        self.add_token("TYPE", token)
+        return token
+
+    def CAR(self, token):
+        self.add_token("TYPE", token)
+        return token
+
+    def EQUAL(self, token):
+        self.add_token("EQUAL", token)
+        return token
+
+    def IDENTIFIER(self, token):
+        self.add_token("IDENTIFIER", token)
+        return token
+
+    def NUMBER(self, token):
+        self.add_token("NUMBER", token)
+        return token
+
+    def FLOAT(self, token):
+        self.add_token("FLOAT", token)
+        return token
+
+    def BOOLEAN(self, token):
+        self.add_token("BOOLEAN", token)
+        return token
+
+    def STRING(self, token):
+        self.add_token("STRING", token)
+        return token
+
+    def CHAR(self, token):
+        self.add_token("CHAR", token)
+        return token
+
+    def variable_decl(self, items):
+        return items
 
 text = """
 var ent num1 = 10;
 var flot num2 = 10.5;
-var bool flag = falso;
-var cad saludo = "Hola mundo";
+var bool  flag = falso;
+var cad saludo = "123 456";
 var car letra = 'a';
 """
 
+transformer = MyTransformer()
 tree = lexer_parser.parse(text)
-transformed = MyTransformer().transform(tree)
-print(transformed.pretty())
+transformer.transform(tree)
+
+# Imprimir la lista de tokens
+print(transformer.tokens)
