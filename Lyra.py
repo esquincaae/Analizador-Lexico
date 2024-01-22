@@ -1,16 +1,26 @@
-from lark import Lark, Transformer
+from lark import Lark, Transformer, Token, Tree
 
 grammar = """
-    start: (variable_decl SEMICOLON)* (function_decl)*
+    start: (var_decl | func_decl | for_decl | if_decl)*
 
-    variable_decl: VAR type IDENTIFIER EQUAL value
+    var_decl: VAR type IDENTIFIER EQUAL value SEMICOLON
 
-    function_decl: FUNC IDENTIFIER LPAREN RPAREN LBRACE statement* RBRACE
-    statement: function_call SEMICOLON
-    function_call: IDENTIFIER LPAREN STRING RPAREN
+    func_decl: FUNC IDENTIFIER LPAREN RPAREN LBRACE statement* RBRACE
+    statement: function_call SEMICOLON 
+    function_call: PRINT LPAREN STRING RPAREN 
+
+    for_decl: FOR LPAREN var_decl condition SEMICOLON increment RPAREN LBRACE statement* RBRACE
+    condition: IDENTIFIER COMP_OPERATOR value | IDENTIFIER COMP_OPERATOR IDENTIFIER
+    increment: IDENTIFIER PM
+
+    if_decl: IF LPAREN condition RPAREN LBRACE statement* RBRACE (ELSE LBRACE statement* RBRACE)?
 
     FUNC: "func"
     VAR: "var"
+    FOR: "Para"
+    PRINT: "imprimir"
+    IF: "si"
+    ELSE: "sino"
     type: ENT | FLOT | BOOL | CAD | CAR
     ENT: "ent"
     FLOT: "flot"
@@ -23,14 +33,16 @@ grammar = """
     RBRACE: "}"
     LPAREN: "("
     RPAREN: ")"
+    COMP_OPERATOR: "<" | ">" | "==" | "<=" | ">=" | "!="
+    PM: "++" | "--"
 
-    value: NUMBER       -> number
+    value: NUMBER      -> number
          | FLOAT       -> float
          | BOOLEAN     -> boolean
          | STRING      -> string
          | CHAR        -> char
 
-    IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
+    IDENTIFIER: /[a-z_][a-z0-9_]*/
     NUMBER: /\d+/
     FLOAT: /\d+\.\d+/
     BOOLEAN: "verdadero" | "falso"
@@ -50,94 +62,19 @@ class MyTransformer(Transformer):
     def add_token(self, token_type, token_value):
         self.tokens.append({token_type: str(token_value)})
 
-    def FUNC(self, token):
-        self.add_token("FUNC", token)
-        return token
+    def start(self, items):
+        for item in items:
+            self._process_item(item)
 
-    def VAR(self, token):
-        self.add_token("VAR", token)
-        return token
-
-    def ENT(self, token):
-        self.add_token("TYPE", token)
-        return token
-
-    def FLOT(self, token):
-        self.add_token("TYPE", token)
-        return token
-
-    def BOOL(self, token):
-        self.add_token("TYPE", token)
-        return token
-
-    def CAD(self, token):
-        self.add_token("TYPE", token)
-        return token
-
-    def CAR(self, token):
-        self.add_token("TYPE", token)
-        return token
-
-    def EQUAL(self, token):
-        self.add_token("EQUAL", token)
-        return token
-
-    def SEMICOLON(self, token):
-        self.add_token("CLOSELINE", token)
-        return token
-
-    def IDENTIFIER(self, token):
-        self.add_token("IDENTIFIER", token)
-        return token
-
-    def NUMBER(self, token):
-        self.add_token("NUMBER", token)
-        return token
-
-    def FLOAT(self, token):
-        self.add_token("FLOAT", token)
-        return token
-
-    def BOOLEAN(self, token):
-        self.add_token("BOOLEAN", token)
-        return token
-
-    def STRING(self, token):
-        self.add_token("STRING", token)
-        return token
-
-    def CHAR(self, token):
-        self.add_token("CHAR", token)
-        return token
-
-    def function_decl(self, items):
-        function_name = items[1]
-        self.add_token("FUNCTION", function_name)
-        return items
-
-    def function_call(self, items):
-        function_name = items[0]
-        self.add_token("FUNC_CALL", function_name)
-        return items
-    
-    def LBRACE(self, token):
-        self.add_token("LBRACE", token)
-        return token
-
-    def RBRACE(self, token):
-        self.add_token("RBRACE", token)
-        return token
-
-    def LPAREN(self, token):
-        self.add_token("LPAREN", token)
-        return token
-
-    def RPAREN(self, token):
-        self.add_token("RPAREN", token)
-        return token
+    def _process_item(self, item):
+        if isinstance(item, Token):
+            self.add_token(item.type, item)
+        elif isinstance(item, Tree):
+            for child in item.children:
+                self._process_item(child)
 
 text = """
-var ent num1 = 10;
+var ent num = 10;
 var flot num2 = 10.5;
 var bool flag = falso;
 var cad saludo = "Hola mundo";
@@ -145,6 +82,16 @@ var car letra = 'a';
 
 func saludo() {
     imprimir("hola, mundo");
+}
+
+Para(var ent i=0; i<3; i++){
+    imprimir("hola, mundo"); 
+}
+
+si (num > 5){
+    imprimir("noche");
+}sino{
+    imprimir("dia");
 }
 """
 
