@@ -1,0 +1,19 @@
+var ent num = 10;
+var flot num2 = 10.5;
+var bool flag = falso;
+var cad saludo = "Hola mundo";
+var car letra = 'a';
+
+func saludo() {
+    imprimir("hola, mundo");
+}
+
+Para(var ent i=0; i<3; i++){
+    imprimir("hola, mundo"); 
+}
+
+si (num > 5){
+    imprimir("noche");
+}sino{
+    imprimir("dia");
+}

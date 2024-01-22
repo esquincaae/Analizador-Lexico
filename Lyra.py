@@ -1,4 +1,6 @@
 from lark import Lark, Transformer, Token, Tree
+import tkinter as tk
+from tkinter import messagebox
 
 grammar = """
     start: (var_decl | func_decl | for_decl | if_decl)*
@@ -73,33 +75,31 @@ class MyTransformer(Transformer):
             for child in item.children:
                 self._process_item(child)
 
-text = """
-var ent num = 10;
-var flot num2 = 10.5;
-var bool flag = falso;
-var cad saludo = "Hola mundo";
-var car letra = 'a';
+# Función para procesar la entrada y mostrar los tokens
+def procesar():
+    entrada = entry.get()
+    try:
+        tree = lexer_parser.parse(entrada)
+        transformer = MyTransformer()
+        transformer.transform(tree)
+        text_area.delete('1.0', tk.END)
+        for token_dict in transformer.tokens:
+            for token_type, token_value in token_dict.items():
+                text_area.insert(tk.END, f"{token_type}: {token_value}\n")
+    except Exception as e:
+        messagebox.showerror("Error de análisis", str(e))
 
-func saludo() {
-    imprimir("hola, mundo");
-}
+# Crear la interfaz de usuario Tkinter
+root = tk.Tk()
+root.title("Lyra: Analizador Léxico")
 
-Para(var ent i=0; i<3; i++){
-    imprimir("hola, mundo"); 
-}
+entry = tk.Entry(root, width=100)
+entry.pack(padx=10, pady=10)
 
-si (num > 5){
-    imprimir("noche");
-}sino{
-    imprimir("dia");
-}
-"""
+boton_procesar = tk.Button(root, text="PROCESAR", command=procesar)
+boton_procesar.pack(padx=10, pady=10)
 
-transformer = MyTransformer()
-tree = lexer_parser.parse(text)
-transformer.transform(tree)
+text_area = tk.Text(root, height=15, width=150)
+text_area.pack(padx=10, pady=10)
 
-for token_dict in transformer.tokens:
-    for token_type, token_value in token_dict.items():
-        print(f"{token_type}: {token_value}")
-            
+root.mainloop()       
