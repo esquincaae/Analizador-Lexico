@@ -1,10 +1,15 @@
 from lark import Lark, Transformer
 
 grammar = """
-    start: (variable_decl ";")+
+    start: (variable_decl SEMICOLON)* (function_decl)*
 
     variable_decl: VAR type IDENTIFIER EQUAL value
 
+    function_decl: FUNC IDENTIFIER LPAREN RPAREN LBRACE statement* RBRACE
+    statement: function_call SEMICOLON
+    function_call: IDENTIFIER LPAREN STRING RPAREN
+
+    FUNC: "func"
     VAR: "var"
     type: ENT | FLOT | BOOL | CAD | CAR
     ENT: "ent"
@@ -13,6 +18,11 @@ grammar = """
     CAD: "cad"
     CAR: "car"
     EQUAL: "="
+    SEMICOLON: ";"
+    LBRACE: "{"
+    RBRACE: "}"
+    LPAREN: "("
+    RPAREN: ")"
 
     value: NUMBER       -> number
          | FLOAT       -> float
@@ -39,6 +49,10 @@ class MyTransformer(Transformer):
 
     def add_token(self, token_type, token_value):
         self.tokens.append({token_type: str(token_value)})
+
+    def FUNC(self, token):
+        self.add_token("FUNC", token)
+        return token
 
     def VAR(self, token):
         self.add_token("VAR", token)
@@ -68,6 +82,10 @@ class MyTransformer(Transformer):
         self.add_token("EQUAL", token)
         return token
 
+    def SEMICOLON(self, token):
+        self.add_token("CLOSELINE", token)
+        return token
+
     def IDENTIFIER(self, token):
         self.add_token("IDENTIFIER", token)
         return token
@@ -92,20 +110,49 @@ class MyTransformer(Transformer):
         self.add_token("CHAR", token)
         return token
 
-    def variable_decl(self, items):
+    def function_decl(self, items):
+        function_name = items[1]
+        self.add_token("FUNCTION", function_name)
         return items
+
+    def function_call(self, items):
+        function_name = items[0]
+        self.add_token("FUNC_CALL", function_name)
+        return items
+    
+    def LBRACE(self, token):
+        self.add_token("LBRACE", token)
+        return token
+
+    def RBRACE(self, token):
+        self.add_token("RBRACE", token)
+        return token
+
+    def LPAREN(self, token):
+        self.add_token("LPAREN", token)
+        return token
+
+    def RPAREN(self, token):
+        self.add_token("RPAREN", token)
+        return token
 
 text = """
 var ent num1 = 10;
 var flot num2 = 10.5;
-var bool  flag = falso;
-var cad saludo = "123 456";
+var bool flag = falso;
+var cad saludo = "Hola mundo";
 var car letra = 'a';
+
+func saludo() {
+    imprimir("hola, mundo");
+}
 """
 
 transformer = MyTransformer()
 tree = lexer_parser.parse(text)
 transformer.transform(tree)
 
-# Imprimir la lista de tokens
-print(transformer.tokens)
+for token in transformer.tokens:
+    print(token, end="")
+    if ',' in str(token):
+        print()
