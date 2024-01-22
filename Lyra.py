@@ -99,7 +99,7 @@ transformer = MyTransformer()
 tree = lexer_parser.parse(text)
 transformer.transform(tree)
 
-for token in transformer.tokens:
-    print(token, end="")
-    if ',' in str(token):
-        print()
+for token_dict in transformer.tokens:
+    for token_type, token_value in token_dict.items():
+        print(f"{token_type}: {token_value}")
+            
