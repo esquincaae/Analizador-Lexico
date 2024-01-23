@@ -3,7 +3,12 @@ import tkinter as tk
 from tkinter import messagebox
 
 grammar = """
-    start: (var_decl | func_decl | for_decl | if_decl)*
+    start: any_estructure*
+
+    any_estructure: FUNC | VAR | FOR | PRINT | IF | ELSE | type
+       | EQUAL | SEMICOLON | LBRACE | RBRACE | LPAREN | RPAREN 
+       | COMP_OPERATOR | PM | IDENTIFIER 
+       | NUMBER | FLOAT | BOOLEAN | STRING | CHAR
 
     var_decl: VAR type IDENTIFIER EQUAL value SEMICOLON
 
@@ -16,6 +21,7 @@ grammar = """
     increment: IDENTIFIER PM
 
     if_decl: IF LPAREN condition RPAREN LBRACE statement* RBRACE (ELSE LBRACE statement* RBRACE)?
+  
 
     FUNC: "func"
     VAR: "var"
@@ -44,11 +50,11 @@ grammar = """
          | STRING      -> string
          | CHAR        -> char
 
-    IDENTIFIER: /[a-z_][a-z0-9_]*/
-    NUMBER: /\d+/
-    FLOAT: /\d+\.\d+/
+    IDENTIFIER: /[a-z][a-z]*/
+    NUMBER: /0|\d[0-9]*/
+    FLOAT: /\d*\.\d+/
     BOOLEAN: "verdadero" | "falso"
-    STRING: /"[^"]*"/
+    STRING: /"([^"]|\\")*"/
     CHAR: /'[^']'/
 
     %import common.WS
@@ -102,4 +108,4 @@ boton_procesar.pack(padx=10, pady=10)
 text_area = tk.Text(root, height=15, width=150)
 text_area.pack(padx=10, pady=10)
 
-root.mainloop()       
+root.mainloop()  

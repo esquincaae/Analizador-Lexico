@@ -1,19 +1,19 @@
-var ent num = 10;
-var flot num2 = 10.5;
-var bool flag = falso;
-var cad saludo = "Hola mundo";
+var ent numero = 10;
+var flot decimal = 0.5;
+var bool bandera = falso;
+var cad saludo = "Esto es una variable";
 var car letra = 'a';
 
-func saludo() {
-    imprimir("hola, mundo");
+func test() {
+    imprimir("esto es una funcion");
 }
 
 Para(var ent i=0; i<3; i++){
-    imprimir("hola, mundo"); 
+    imprimir("esto es un ciclo for"); 
 }
 
-si (num > 5){
-    imprimir("noche");
+si (num > decimal){
+    imprimir("esto es una sentencia if");
 }sino{
-    imprimir("dia");
+    imprimir("esta es una sentencia else");
 }
