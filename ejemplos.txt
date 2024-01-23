@@ -17,3 +17,11 @@ si (num > decimal){
 }sino{
     imprimir("esta es una sentencia else");
 }
+
+
+
+
+
+
+-------------------------------------------
+var_decl | func_decl | for_decl | if_decl |

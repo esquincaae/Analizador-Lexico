@@ -1,6 +1,4 @@
 from lark import Lark, Transformer, Token, Tree
-import tkinter as tk
-from tkinter import messagebox
 
 grammar = """
     start: any_estructure*
@@ -81,31 +79,11 @@ class MyTransformer(Transformer):
             for child in item.children:
                 self._process_item(child)
 
-# Función para procesar la entrada y mostrar los tokens
-def procesar():
-    entrada = entry.get()
+def procesar_entrada(entrada):
     try:
         tree = lexer_parser.parse(entrada)
         transformer = MyTransformer()
         transformer.transform(tree)
-        text_area.delete('1.0', tk.END)
-        for token_dict in transformer.tokens:
-            for token_type, token_value in token_dict.items():
-                text_area.insert(tk.END, f"{token_type}: {token_value}\n")
+        return transformer.tokens
     except Exception as e:
-        messagebox.showerror("Error de análisis", str(e))
-
-# Crear la interfaz de usuario Tkinter
-root = tk.Tk()
-root.title("Lyra: Analizador Léxico")
-
-entry = tk.Entry(root, width=100)
-entry.pack(padx=10, pady=10)
-
-boton_procesar = tk.Button(root, text="PROCESAR", command=procesar)
-boton_procesar.pack(padx=10, pady=10)
-
-text_area = tk.Text(root, height=15, width=150)
-text_area.pack(padx=10, pady=10)
-
-root.mainloop()  
+        raise e
