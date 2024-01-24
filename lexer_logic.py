@@ -32,7 +32,7 @@ grammar = """
     FLOAT: /\d*\.\d+/
     BOOLEAN: "verdadero" | "falso"
     STRING: /"([^"]|\\")*"/
-    CHAR: /'[^']'/
+    CHAR: /'([^']|\\')'/
     UNKNOWN: /./
 
     %import common.WS
