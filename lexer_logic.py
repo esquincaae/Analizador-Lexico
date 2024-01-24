@@ -3,23 +3,10 @@ from lark import Lark, Transformer, Token, Tree
 grammar = """
     start: any_estructure*
 
-    any_estructure: FUNC | VAR | FOR | PRINT | IF | ELSE | type
-       | EQUAL | SEMICOLON | LBRACE | RBRACE | LPAREN | RPAREN 
-       | COMP_OPERATOR | PM | IDENTIFIER 
-       | NUMBER | FLOAT | BOOLEAN | STRING | CHAR
-
-    var_decl: VAR type IDENTIFIER EQUAL value SEMICOLON
-
-    func_decl: FUNC IDENTIFIER LPAREN RPAREN LBRACE statement* RBRACE
-    statement: function_call SEMICOLON 
-    function_call: PRINT LPAREN STRING RPAREN 
-
-    for_decl: FOR LPAREN var_decl condition SEMICOLON increment RPAREN LBRACE statement* RBRACE
-    condition: IDENTIFIER COMP_OPERATOR value | IDENTIFIER COMP_OPERATOR IDENTIFIER
-    increment: IDENTIFIER PM
-
-    if_decl: IF LPAREN condition RPAREN LBRACE statement* RBRACE (ELSE LBRACE statement* RBRACE)?
-  
+    any_estructure: FUNC | VAR | FOR | PRINT | IF | ELSE | var_type
+       | SEMICOLON | BRACKET | PAREN | OPERATOR | IDENTIFIER 
+       | NUMBER | FLOAT | BOOLEAN | STRING | CHAR | PM | EQUAL
+       | UNKNOWN
 
     FUNC: "func"
     VAR: "var"
@@ -27,21 +14,13 @@ grammar = """
     PRINT: "imprimir"
     IF: "si"
     ELSE: "sino"
-    type: ENT | FLOT | BOOL | CAD | CAR
-    ENT: "ent"
-    FLOT: "flot"
-    BOOL: "bool"
-    CAD: "cad"
-    CAR: "car"
-    EQUAL: "="
+    var_type: "ent" | "flot" | "bool" | "cad" | "car"
     SEMICOLON: ";"
-    LBRACE: "{"
-    RBRACE: "}"
-    LPAREN: "("
-    RPAREN: ")"
-    COMP_OPERATOR: "<" | ">" | "==" | "<=" | ">=" | "!="
-    PM: "++" | "--"
-
+    BRACKET: "{" | "}"
+    PAREN: "(" | ")"
+    OPERATOR: "<" | ">" | "<=" | ">=" | "!=" | "=="
+    PM: "++" | "--" 
+    EQUAL: "="
     value: NUMBER      -> number
          | FLOAT       -> float
          | BOOLEAN     -> boolean
@@ -54,6 +33,7 @@ grammar = """
     BOOLEAN: "verdadero" | "falso"
     STRING: /"([^"]|\\")*"/
     CHAR: /'[^']'/
+    UNKNOWN: /./
 
     %import common.WS
     %ignore WS
@@ -63,10 +43,12 @@ lexer_parser = Lark(grammar, parser='lalr')
 
 class MyTransformer(Transformer):
     def __init__(self):
-        self.tokens = []
+        self.token_counts = {}
 
     def add_token(self, token_type, token_value):
-        self.tokens.append({token_type: str(token_value)})
+        if token_type not in self.token_counts:
+            self.token_counts[token_type] = 0
+        self.token_counts[token_type] += 1
 
     def start(self, items):
         for item in items:
@@ -79,11 +61,15 @@ class MyTransformer(Transformer):
             for child in item.children:
                 self._process_item(child)
 
+    def get_token_counts(self):
+        return self.token_counts
+
+
 def procesar_entrada(entrada):
     try:
         tree = lexer_parser.parse(entrada)
         transformer = MyTransformer()
         transformer.transform(tree)
-        return transformer.tokens
+        return transformer.get_token_counts()
     except Exception as e:
         raise e

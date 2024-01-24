@@ -5,15 +5,13 @@ from lexer_logic import procesar_entrada
 def procesar():
     entrada = entry.get()
     try:
-        tokens = procesar_entrada(entrada)
+        token_counts = procesar_entrada(entrada)
         text_area.delete('1.0', tk.END)
-        for token_dict in tokens:
-            for token_type, token_value in token_dict.items():
-                text_area.insert(tk.END, f"{token_type}: {token_value}\n")
+        for token_type, count in token_counts.items():
+            text_area.insert(tk.END, f"Token: {token_type}, Conteo: {count}\n")
     except Exception as e:
         messagebox.showerror("Error de análisis", str(e))
 
-# Crear la interfaz de usuario Tkinter
 root = tk.Tk()
 root.title("Lyra: Analizador Léxico")
 
