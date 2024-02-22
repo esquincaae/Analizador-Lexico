@@ -1,7 +1,7 @@
 var ent numero = 10;
 var flot decimal = 0.5;
 var bool bandera = falso;
-var cad saludo = "Esto es una variable";
+var cad saludo = "esto es una variable";
 var car letra = 'a';
 
 func test() {
@@ -17,6 +17,27 @@ si (num > decimal){
 }sino{
     imprimir("esta es una sentencia else");
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
