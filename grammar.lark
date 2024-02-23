@@ -1,10 +1,4 @@
-start: (individual_tokens | structures)*
-
-individual_tokens: FUNC | VAR | FOR | PRINT | IF | ELSE 
-                | type | SEMICOLON | LBRACKET | RBRACKET 
-                | LPAREN | RPAREN | OPERATOR | IDENTIFIER
-                | INT | FLOAT | BOOLEAN | STRING | CHAR
-                | PM | EQUAL | UNKNOWN 
+start: structures*
 
 structures: var_decl | func_decl | for_decl | if_decl
 
